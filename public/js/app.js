@@ -7,7 +7,7 @@ const App = (() => {
   // ─── State ───────────────────────────────────────────────
   let products = [];
   let currentSection = "dashboard";
-  let deleteTarget = null; // { id, name }
+  let deleteTarget = null;
 
   // ─── DOM References ───────────────────────────────────────
   const dom = {
@@ -34,9 +34,7 @@ const App = (() => {
 
   // ─── Init ─────────────────────────────────────────────────
   async function init() {
-    Toast.init();
-    Modal.init();
-    registerServiceWorker();
+    unregisterServiceWorker();
     setupOfflineDetection();
     setupNavigation();
     setupForm();
@@ -46,13 +44,12 @@ const App = (() => {
     await loadProducts();
   }
 
-  // ─── Service Worker ───────────────────────────────────────
-  function registerServiceWorker() {
+  // ─── Kill Service Worker ──────────────────────────────────
+  function unregisterServiceWorker() {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/service-worker.js")
-        .then(() => console.log("✅ Service Worker registered"))
-        .catch((err) => console.warn("SW registration failed:", err));
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(r => r.unregister());
+      });
     }
   }
 
@@ -90,24 +87,20 @@ const App = (() => {
         e.preventDefault();
         const section = item.dataset.section;
         navigateTo(section);
-        // Close mobile sidebar
         dom.sidebar.classList.remove("open");
       });
     });
   }
 
   window.navigateTo = function (section) {
-    // Update nav active state
     document.querySelectorAll(".nav-item").forEach((n) => {
       n.classList.toggle("active", n.dataset.section === section);
     });
-    // Show section
     document.querySelectorAll(".section").forEach((s) => {
       s.classList.toggle("active", s.id === `section-${section}`);
     });
     currentSection = section;
 
-    // Refresh data when switching sections
     if (section === "dashboard" || section === "products") loadProducts();
     if (section === "add") resetForm();
   };
@@ -117,7 +110,6 @@ const App = (() => {
     dom.menuToggle.addEventListener("click", () => {
       dom.sidebar.classList.toggle("open");
     });
-    // Close on outside click
     document.addEventListener("click", (e) => {
       if (!dom.sidebar.contains(e.target) && !dom.menuToggle.contains(e.target)) {
         dom.sidebar.classList.remove("open");
@@ -131,7 +123,7 @@ const App = (() => {
 
     dom.globalSearch.addEventListener("input", () => {
       clearTimeout(searchTimer);
-      searchTimer = setTimeout(loadProducts, 350); // Debounce
+      searchTimer = setTimeout(loadProducts, 350);
     });
 
     dom.filterCategory.addEventListener("change", loadProducts);
@@ -147,7 +139,7 @@ const App = (() => {
     });
   }
 
-  // ─── CRUD: Read (Load Products) ───────────────────────────
+  // ─── CRUD: Read ───────────────────────────────────────────
   async function loadProducts() {
     const params = {
       search:   dom.globalSearch.value.trim(),
@@ -217,14 +209,14 @@ const App = (() => {
     const tick = (now) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out-cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
       el.textContent = Math.round(start + (target - start) * eased);
       if (progress < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
   }
 
-  // ─── CRUD: Create & Update (Form) ─────────────────────────
+  // ─── CRUD: Create & Update ────────────────────────────────
   function setupForm() {
     dom.productForm.addEventListener("submit", handleFormSubmit);
     document.getElementById("resetFormBtn").addEventListener("click", resetForm);
@@ -247,11 +239,9 @@ const App = (() => {
 
     try {
       if (id) {
-        // ── UPDATE ──
         await API.updateProduct(id, payload);
         Toast.success(`"${payload.name}" updated successfully!`);
       } else {
-        // ── CREATE ──
         await API.createProduct(payload);
         Toast.success(`"${payload.name}" added to inventory!`);
       }
@@ -288,7 +278,7 @@ const App = (() => {
   }
 
   function setSubmitLoading(loading) {
-    dom.submitBtn.disabled      = loading;
+    dom.submitBtn.disabled           = loading;
     dom.submitBtnText.style.display  = loading ? "none" : "inline";
     dom.submitSpinner.style.display  = loading ? "inline-block" : "none";
   }
@@ -304,17 +294,17 @@ const App = (() => {
       .forEach((el) => el.classList.remove("error"));
   }
 
-  // ─── CRUD: Edit (Populate Form) ───────────────────────────
+  // ─── CRUD: Edit ───────────────────────────────────────────
   async function openEdit(id) {
     navigateTo("add");
     try {
       const res = await API.getProduct(id);
       const p   = res.data;
       dom.editId.value = p._id;
-      document.getElementById("fname").value       = p.name;
-      document.getElementById("fcategory").value   = p.category;
-      document.getElementById("fquantity").value   = p.quantity;
-      document.getElementById("fprice").value      = p.price;
+      document.getElementById("fname").value        = p.name;
+      document.getElementById("fcategory").value    = p.category;
+      document.getElementById("fquantity").value    = p.quantity;
+      document.getElementById("fprice").value       = p.price;
       document.getElementById("fdescription").value = p.description || "";
       dom.formTitle.textContent = "Edit Product";
       dom.formSub.textContent   = `Editing: ${p.name}`;
@@ -333,7 +323,6 @@ const App = (() => {
       await API.deleteProduct(id);
       Toast.success(`"${name}" deleted successfully`);
 
-      // Animate card removal
       const card = document.querySelector(`.product-card[data-id="${id}"]`);
       if (card) {
         card.style.transition = "all 0.3s ease";
@@ -342,15 +331,11 @@ const App = (() => {
         setTimeout(() => card.remove(), 300);
       }
 
-      await loadProducts(); // Refresh stats
+      await loadProducts();
     } catch (err) {
       Toast.error(`Delete failed: ${err.message}`);
     }
   }
 
-  // ─── Expose Public Interface ──────────────────────────────
   return { init, openEdit, confirmDelete };
 })();
-
-// ─── Boot ─────────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", App.init);

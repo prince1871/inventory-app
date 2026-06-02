@@ -45,12 +45,18 @@ const productSchema = new mongoose.Schema(
       sparse: true,
       trim: true,
     },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
   },
   {
     timestamps: true, // adds createdAt and updatedAt
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
 // ─── Pre-save Middleware ──────────────────────────────────

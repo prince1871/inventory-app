@@ -4,297 +4,276 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0a0a0f" />
-  <meta name="description" content="Inventory Management System — Full Stack CRUD App" />
-  <link rel="manifest" href="/manifest.json" />
   <title>INVNTRY — Inventory Management System</title>
-
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
-
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
 
-  <!-- ── Noise Texture Overlay ── -->
-  <div class="noise-overlay"></div>
+<div class="noise-overlay"></div>
 
-  <!-- ── App Shell ── -->
-  <div id="app">
+<!-- ── AUTH SCREEN ── -->
+<div id="authScreen" style="display:none">
+  <div class="auth-container">
+    <div class="auth-brand">
+      <div class="brand-icon"><span class="brand-cube"></span></div>
+      <span class="brand-name">INVNTRY</span>
+    </div>
+    <p class="auth-tagline">Your personal inventory, in the cloud.</p>
 
-    <!-- ── Sidebar ── -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-icon">
-          <span class="brand-cube"></span>
-        </div>
-        <div class="brand-text">
-          <span class="brand-name">INVNTRY</span>
-          <span class="brand-sub">Management System</span>
-        </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin">Sign In</button>
+      <button class="auth-tab" id="tabSignup">Create Account</button>
+    </div>
+
+    <!-- Login Form -->
+    <form class="auth-form" id="loginForm" novalidate>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="you@email.com" required />
       </div>
-
-      <nav class="sidebar-nav">
-        <a href="#" class="nav-item active" data-section="dashboard">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          <span>Dashboard</span>
-        </a>
-        <a href="#" class="nav-item" data-section="products">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          <span>Products</span>
-        </a>
-        <a href="#" class="nav-item" data-section="add">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-          <span>Add Product</span>
-        </a>
-      </nav>
-
-      <div class="sidebar-status">
-        <div class="status-dot" id="dbStatus"></div>
-        <span id="dbStatusText">Connecting...</span>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required />
       </div>
-    </aside>
+      <p class="auth-error" id="loginError"></p>
+      <button type="submit" class="btn btn-primary" id="loginBtn" style="width:100%">Sign In</button>
+    </form>
 
-    <!-- ── Main Content ── -->
-    <main class="main-content">
-
-      <!-- ── Top Bar ── -->
-      <header class="topbar">
-        <button class="menu-toggle" id="menuToggle">
-          <span></span><span></span><span></span>
-        </button>
-        <div class="topbar-search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="globalSearch" placeholder="Search products, SKU…" autocomplete="off" />
-        </div>
-        <div class="topbar-actions">
-          <div class="offline-badge" id="offlineBadge" style="display:none">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
-            OFFLINE
-          </div>
-        </div>
-      </header>
-
-      <!-- ── SECTION: Dashboard ── -->
-      <section class="section active" id="section-dashboard">
-        <div class="section-header">
-          <h1 class="section-title">Dashboard</h1>
-          <p class="section-sub">Real-time inventory overview</p>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-          <div class="stat-card" data-color="cyan">
-            <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-value" id="statTotalProducts">—</span>
-              <span class="stat-label">Total Products</span>
-            </div>
-            <div class="stat-line"></div>
-          </div>
-
-          <div class="stat-card" data-color="lime">
-            <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-value" id="statTotalValue">—</span>
-              <span class="stat-label">Total Value</span>
-            </div>
-            <div class="stat-line"></div>
-          </div>
-
-          <div class="stat-card" data-color="orange">
-            <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-value" id="statTotalItems">—</span>
-              <span class="stat-label">Total Items</span>
-            </div>
-            <div class="stat-line"></div>
-          </div>
-
-          <div class="stat-card" data-color="purple">
-            <div class="stat-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-value" id="statAvgPrice">—</span>
-              <span class="stat-label">Avg. Price</span>
-            </div>
-            <div class="stat-line"></div>
-          </div>
-        </div>
-
-        <!-- Recent Products Table (on dashboard) -->
-        <div class="card mt-lg">
-          <div class="card-header">
-            <h2>Recent Products</h2>
-            <button class="btn btn-ghost btn-sm" onclick="navigateTo('products')">View All →</button>
-          </div>
-          <div class="table-wrapper">
-            <table class="data-table" id="dashboardTable">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>SKU</th>
-                  <th>Category</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="dashboardTableBody">
-                <tr><td colspan="6" class="table-empty">Loading…</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── SECTION: Products ── -->
-      <section class="section" id="section-products">
-        <div class="section-header">
-          <div>
-            <h1 class="section-title">Products</h1>
-            <p class="section-sub">Manage your inventory</p>
-          </div>
-          <button class="btn btn-primary" onclick="navigateTo('add')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Product
-          </button>
-        </div>
-
-        <!-- Filters -->
-        <div class="filters-row">
-          <select id="filterCategory" class="filter-select">
-            <option value="All">All Categories</option>
-            <option>Electronics</option>
-            <option>Clothing</option>
-            <option>Food</option>
-            <option>Tools</option>
-            <option>Furniture</option>
-            <option>Other</option>
-          </select>
-          <select id="filterStatus" class="filter-select">
-            <option value="All">All Status</option>
-            <option>In Stock</option>
-            <option>Low Stock</option>
-            <option>Out of Stock</option>
-          </select>
-          <select id="filterSort" class="filter-select">
-            <option value="-createdAt">Newest First</option>
-            <option value="createdAt">Oldest First</option>
-            <option value="name">Name A–Z</option>
-            <option value="-name">Name Z–A</option>
-            <option value="-price">Price High–Low</option>
-            <option value="price">Price Low–High</option>
-          </select>
-          <button class="btn btn-ghost btn-sm" id="clearFilters">Clear Filters</button>
-        </div>
-
-        <!-- Products Grid -->
-        <div class="products-grid" id="productsGrid">
-          <!-- Cards injected by JS -->
-        </div>
-
-        <div id="productsEmpty" class="empty-state" style="display:none">
-          <div class="empty-icon">📦</div>
-          <h3>No products found</h3>
-          <p>Try adjusting your filters or add a new product.</p>
-          <button class="btn btn-primary" onclick="navigateTo('add')">Add First Product</button>
-        </div>
-      </section>
-
-      <!-- ── SECTION: Add / Edit Product ── -->
-      <section class="section" id="section-add">
-        <div class="section-header">
-          <div>
-            <h1 class="section-title" id="formTitle">Add Product</h1>
-            <p class="section-sub" id="formSub">Fill in the details below</p>
-          </div>
-          <button class="btn btn-ghost" onclick="navigateTo('products')">← Back</button>
-        </div>
-
-        <div class="form-card">
-          <form id="productForm" novalidate>
-            <input type="hidden" id="editId" />
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="fname">Product Name <span class="required">*</span></label>
-                <input type="text" id="fname" name="name" placeholder="e.g. Sony WH-1000XM5" required />
-                <span class="form-error" id="err-name"></span>
-              </div>
-
-              <div class="form-group">
-                <label for="fcategory">Category <span class="required">*</span></label>
-                <select id="fcategory" name="category" required>
-                  <option value="">Select category…</option>
-                  <option>Electronics</option>
-                  <option>Clothing</option>
-                  <option>Food</option>
-                  <option>Tools</option>
-                  <option>Furniture</option>
-                  <option>Other</option>
-                </select>
-                <span class="form-error" id="err-category"></span>
-              </div>
-
-              <div class="form-group">
-                <label for="fquantity">Quantity <span class="required">*</span></label>
-                <input type="number" id="fquantity" name="quantity" placeholder="0" min="0" required />
-                <span class="form-error" id="err-quantity"></span>
-              </div>
-
-              <div class="form-group">
-                <label for="fprice">Price (₦) <span class="required">*</span></label>
-                <input type="number" id="fprice" name="price" placeholder="0.00" min="0" step="0.01" required />
-                <span class="form-error" id="err-price"></span>
-              </div>
-
-              <div class="form-group form-group--full">
-                <label for="fdescription">Description</label>
-                <textarea id="fdescription" name="description" placeholder="Optional product description…" rows="3"></textarea>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="button" class="btn btn-ghost" id="resetFormBtn">Reset</button>
-              <button type="submit" class="btn btn-primary" id="submitBtn">
-                <span id="submitBtnText">Save Product</span>
-                <span class="btn-spinner" id="submitSpinner" style="display:none"></span>
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
-
-    </main>
+    <!-- Signup Form -->
+    <form class="auth-form" id="signupForm" style="display:none" novalidate>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="signupName" placeholder="Emmanuel" required />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="signupEmail" placeholder="you@email.com" required />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="signupPassword" placeholder="Min. 6 characters" required />
+      </div>
+      <p class="auth-error" id="signupError"></p>
+      <button type="submit" class="btn btn-primary" id="signupBtn" style="width:100%">Create Account</button>
+    </form>
   </div>
+</div>
 
-  <!-- ── Toast Notifications ── -->
-  <div class="toast-container" id="toastContainer"></div>
+<!-- ── APP SHELL ── -->
+<div id="app" style="display:none">
 
-  <!-- ── Modal (Confirm Delete) ── -->
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-      <div class="modal-icon">⚠️</div>
-      <h3 class="modal-title">Delete Product?</h3>
-      <p class="modal-body" id="modalBody">This action cannot be undone.</p>
-      <div class="modal-actions">
-        <button class="btn btn-ghost" id="modalCancel">Cancel</button>
-        <button class="btn btn-danger" id="modalConfirm">Delete</button>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><span class="brand-cube"></span></div>
+      <div class="brand-text">
+        <span class="brand-name">INVNTRY</span>
+        <span class="brand-sub">Management System</span>
       </div>
     </div>
-  </div>
 
-  <script src="/js/api.js"></script>
-  <script src="/js/ui.js"></script>
-  <script src="/js/app.js"></script>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-section="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-section="products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        <span>Products</span>
+      </a>
+      <a href="#" class="nav-item" data-section="add">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <span>Add Product</span>
+      </a>
+    </nav>
+
+    <!-- User Info & Logout -->
+    <div class="sidebar-user">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">E</div>
+        <div>
+          <div class="user-name" id="userName">User</div>
+          <div class="user-email" id="userEmail">user@email.com</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="logoutBtn" style="width:100%;margin-top:10px">Sign Out</button>
+    </div>
+
+    <div class="sidebar-status">
+      <div class="status-dot" id="dbStatus"></div>
+      <span id="dbStatusText">Connecting...</span>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle"><span></span><span></span><span></span></button>
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="globalSearch" placeholder="Search products, SKU…" autocomplete="off" />
+      </div>
+      <div class="topbar-actions">
+        <div class="offline-badge" id="offlineBadge" style="display:none">OFFLINE</div>
+      </div>
+    </header>
+
+    <!-- Dashboard -->
+    <section class="section active" id="section-dashboard">
+      <div class="section-header">
+        <h1 class="section-title">Dashboard</h1>
+        <p class="section-sub">Real-time inventory overview</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card" data-color="cyan">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+          <div class="stat-info"><span class="stat-value" id="statTotalProducts">—</span><span class="stat-label">Total Products</span></div>
+          <div class="stat-line"></div>
+        </div>
+        <div class="stat-card" data-color="lime">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="stat-info"><span class="stat-value" id="statTotalValue">—</span><span class="stat-label">Total Value</span></div>
+          <div class="stat-line"></div>
+        </div>
+        <div class="stat-card" data-color="orange">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="stat-info"><span class="stat-value" id="statTotalItems">—</span><span class="stat-label">Total Items</span></div>
+          <div class="stat-line"></div>
+        </div>
+        <div class="stat-card" data-color="purple">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="stat-info"><span class="stat-value" id="statAvgPrice">—</span><span class="stat-label">Avg. Price</span></div>
+          <div class="stat-line"></div>
+        </div>
+      </div>
+      <div class="card mt-lg">
+        <div class="card-header">
+          <h2>Recent Products</h2>
+          <button class="btn btn-ghost btn-sm" onclick="navigateTo('products')">View All →</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead><tr><th>Product</th><th>SKU</th><th>Category</th><th>Qty</th><th>Price</th><th>Status</th></tr></thead>
+            <tbody id="dashboardTableBody"><tr><td colspan="6" class="table-empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Products -->
+    <section class="section" id="section-products">
+      <div class="section-header">
+        <div><h1 class="section-title">Products</h1><p class="section-sub">Manage your inventory</p></div>
+        <button class="btn btn-primary" onclick="navigateTo('add')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Product
+        </button>
+      </div>
+      <div class="filters-row">
+        <select id="filterCategory" class="filter-select">
+          <option value="All">All Categories</option>
+          <option>Electronics</option><option>Clothing</option><option>Food</option>
+          <option>Tools</option><option>Furniture</option><option>Other</option>
+        </select>
+        <select id="filterStatus" class="filter-select">
+          <option value="All">All Status</option>
+          <option>In Stock</option><option>Low Stock</option><option>Out of Stock</option>
+        </select>
+        <select id="filterSort" class="filter-select">
+          <option value="-createdAt">Newest First</option>
+          <option value="createdAt">Oldest First</option>
+          <option value="name">Name A–Z</option>
+          <option value="-price">Price High–Low</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" id="clearFilters">Clear Filters</button>
+      </div>
+      <div class="products-grid" id="productsGrid"></div>
+      <div id="productsEmpty" class="empty-state" style="display:none">
+        <div class="empty-icon">📦</div>
+        <h3>No products found</h3>
+        <p>Add your first product to get started.</p>
+        <button class="btn btn-primary" onclick="navigateTo('add')">Add First Product</button>
+      </div>
+    </section>
+
+    <!-- Add/Edit -->
+    <section class="section" id="section-add">
+      <div class="section-header">
+        <div><h1 class="section-title" id="formTitle">Add Product</h1><p class="section-sub" id="formSub">Fill in the details below</p></div>
+        <button class="btn btn-ghost" onclick="navigateTo('products')">← Back</button>
+      </div>
+      <div class="form-card">
+        <form id="productForm" novalidate>
+          <input type="hidden" id="editId" />
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Product Name <span class="required">*</span></label>
+              <input type="text" id="fname" name="name" placeholder="e.g. Sony WH-1000XM5" required />
+              <span class="form-error" id="err-name"></span>
+            </div>
+            <div class="form-group">
+              <label>Category <span class="required">*</span></label>
+              <select id="fcategory" name="category" required>
+                <option value="">Select category…</option>
+                <option>Electronics</option><option>Clothing</option><option>Food</option>
+                <option>Tools</option><option>Furniture</option><option>Other</option>
+              </select>
+              <span class="form-error" id="err-category"></span>
+            </div>
+            <div class="form-group">
+              <label>Quantity <span class="required">*</span></label>
+              <input type="number" id="fquantity" name="quantity" placeholder="0" min="0" required />
+              <span class="form-error" id="err-quantity"></span>
+            </div>
+            <div class="form-group">
+              <label>Price (₦) <span class="required">*</span></label>
+              <input type="number" id="fprice" name="price" placeholder="0.00" min="0" step="0.01" required />
+              <span class="form-error" id="err-price"></span>
+            </div>
+            <div class="form-group form-group--full">
+              <label>Description</label>
+              <textarea id="fdescription" name="description" placeholder="Optional product description…" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" id="resetFormBtn">Reset</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <span id="submitBtnText">Save Product</span>
+              <span class="btn-spinner" id="submitSpinner" style="display:none"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-icon">⚠️</div>
+    <h3 class="modal-title">Delete Product?</h3>
+    <p class="modal-body" id="modalBody">This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modalCancel">Cancel</button>
+      <button class="btn btn-danger" id="modalConfirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/app.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    Toast.init();
+    Modal.init();
+    Auth.init();
+    if (Auth.isLoggedIn()) App.init();
+  });
+</script>
 </body>
 </html>
